@@ -30,7 +30,7 @@ function addToCsvFromPostRequest(){
     $timestamp .= "00";
   }
 
-  $line = array(time(), $_POST["keertani"], $_POST["description"], $timestamp, $_POST["link"], $_POST["shabadId"]);
+  $line = array(time(), $_POST["keertani"], $_POST["description"], $timestamp, $_POST["link"], $_POST["first_letter_sbd"]);
 
 
   echo "<pre>";

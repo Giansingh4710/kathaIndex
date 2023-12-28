@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tracks Indexed</title>
+  <link rel="stylesheet" type="text/css" href="./assets/styles.css" />
+</head>
+
+<body>
+  <input class="search-container" type="text" placeholder="Search..." oninput="searchForTrack(this.value)" />
+
+  <div>
+    <div id="showModalDiv">
+      <button id="showModalBtn">
+        <span>&#43;</span>
+      </button>
+    </div>
+    <dialog id="myModal">
+      <form id="modal-content" onsubmit="formValidation(event)" method="post"
+        action="http://45.76.2.28/kathaIndex/util/addData.php">
+        <span id="closeModal">&times;</span>
+        <div class="userInputItem">
+          <label for="userDesc">Description:</label>
+          <input id="userDesc" name="description" placeholder="bin ek naam ik chit leen"></input>
+        </div>
+        <div class="userInputItem">
+          <label for="userKeertani">Keertani:</label>
+          <select id='userPickKeertani' onchange="modalSelectChanged()">
+            <option value='Add New'>Add New</option>
+          </select>
+          <input id="userKeertani" name="keertani" style="display:none" placeholder="SDO Ji"></input>
+        </div>
+        <div class="userInputItem">
+          <label for="userLink">Link:</label>
+          <input type="url" id="userLink" name="link"
+            placeholder="http://sikhsoul.com/golden_khajana_files/mp3/Keertan/Bhai%20Joginder%20Singh%20Talwara/Man%20kio%20bairaag%20kurehigaa.mp3"></input>
+        </div>
+        <div class="userInputItem">
+          <p id="theShabadSelected"></p>
+          <label for="usedShabadId">Shabad ID:</label>
+          <input list="shabadId_list_opts" id="usedShabadId" name="shabadId" placeholder="687 or ਤਕਮਲ"
+            oninput="add_shabad_from_user_input()"></input>
+          <div id="shabadId_list_opts">
+          </div>
+
+          <a id="sttmLink" href="https://www.sikhitothemax.org/shabad?id=687&q=Ahrp&type=1&source=all&highlight=9290">
+            <p>https://www.sikhitothemax.org/shabad?id=</p>
+            <p id="highlightShabadId">687</p>
+            <p>&q=Ahrp&type=1&source=all&highlight=9290</p>
+          </a>
+        </div>
+        <div class="userInputItem">
+          <label for="userTimestamp">Timestamp of where Description Happened:</label>
+          <div id="userTimestamp">
+            <input name="hours" id="hours" type="number" min="0" max="59" inputmode="numeric"></input>:
+            <input name="mins" id="mins" type="number" min="0" max="59" inputmode="numeric"></input>:
+            <input name="secs" id="secs" type="number" min="0" max="59" inputmode="numeric"></input>
+          </div>
+          <div id="userTimestamp">
+            <label for="hours">hours:</label>
+            <label for="mins">minutes:</label>
+            <label for="secs">seconds</label>
+          </div>
+        </div>
+
+        <button>Add</button>
+      </form>
+    </dialog>
+  </div>
+
+  <div id="current_playing_audio">
+    <h2 id="DescOfTrack"></h2>
+    <h3 id="playingArtist"></h3>
+    <h3 id="trackAdded"></h3>
+    <p>
+      Start of Description:
+      <button id="timeStampOfDecs"></button>
+    </p>
+    <div>
+      <button id="copyLink">Copy Link</button>
+    </div>
+    <a id="TrackTitle"></a>
+    <div id="audioDiv">
+      <audio autoplay controls></audio>
+    </div>
+    <details id="trackShabadIdDetails"></details>
+  </div>
+
+  <select id="pickKeertani" onchange="displayData()">
+    <option value="All">All</option>
+  </select>
+
+  <h4 id="trackInfo">Vaheguru Ji. Getting Tracks from Database...</h4>
+  <div>
+    <button onclick="showShabads()">Toggle Showing Shabads</button>
+  </div>
+  <div>
+    <button onclick="toggle_descend_order()" id="descend_order_btn">Descending Order</button>
+  </div>
+
+  <ol reversed></ol>
+</body>
+
+<script type="text/javascript" src="./assets/allShabads.js"></script>
+<script type="text/javascript" src="./assets/script.js"></script>
+
+</html>

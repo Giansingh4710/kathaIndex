@@ -3,7 +3,35 @@ let SHOW_TRACKS_DATA = []
 
 modalStuff()
 
-function add_shabad_from_user_input() {
+function add_shabad_from_user_input1() {
+  function findShabadsKey(searchInput) {
+    const all_matched_shabad_keys = {}
+    for (const key in ALL_SHABADS) {
+      const shabadArray = ALL_SHABADS[key]
+
+      for (const line of shabadArray) {
+        const wordsArray = line.split(' ')
+
+        let line_matched = true
+        for (let i = 0; i < searchInput.length; i++) {
+          if (!line_matched) break
+          if (
+            wordsArray.length === i ||
+            wordsArray[i][0].toLowerCase() !== searchInput[i].toLowerCase()
+          ) {
+            line_matched = false
+          }
+        }
+
+        if (line_matched) {
+          all_matched_shabad_keys[key] = line
+          break
+        }
+      }
+    }
+    return all_matched_shabad_keys
+  }
+
   const input_tag = document.getElementById('usedShabadId')
   const user_input = input_tag.value
   const list_opts = document.getElementById('shabadId_list_opts')
@@ -28,32 +56,245 @@ function add_shabad_from_user_input() {
   }
 }
 
-function findShabadsKey(searchInput) {
-  const all_matched_shabad_keys = {}
-  for (const key in ALL_SHABADS) {
-    const shabadArray = ALL_SHABADS[key]
+function add_shabad_from_user_input() {
+  function findShabadsKey(search_input) {
+    function first_letters_gurmukhi(words) {
+      if (typeof words !== 'string') return words
 
-    for (const line of shabadArray) {
-      const wordsArray = line.split(' ')
+      let newWords = words
 
-      let line_matched = true
-      for (let i = 0; i < searchInput.length; i++) {
-        if (!line_matched) break
-        if (
-          wordsArray.length === i ||
-          wordsArray[i][0].toLowerCase() !== searchInput[i].toLowerCase()
-        ) {
-          line_matched = false
-        }
+      const reverseMapping = {
+        ਉ: 'ੳ',
+        ਊ: 'ੳ',
+        ਆ: 'ਅ',
+        ਆਂ: 'ਅ',
+        ਐ: 'ਅ',
+        ਔ: 'ਅ',
+        ਇ: 'ੲ',
+        ਈ: 'ੲ',
+        ਏ: 'ੲ',
+        // 'ੋੁ': 'uo',
       }
 
-      if (line_matched) {
-        all_matched_shabad_keys[key] = line
-        break
+      const simplifications = [
+        ['E', 'a'],
+        ['ਓ', 'ੳ'],
+        ['L', 'l'],
+        ['ਲ਼', 'ਲ'],
+        ['S', 's'],
+        ['ਸ਼', 'ਸ'],
+        ['z', 'j'],
+        ['ਜ਼', 'ਜ'],
+        ['Z', 'g'],
+        ['ਗ਼', 'ਗ'],
+        ['\\^', 'K'],
+        ['ਖ਼', 'ਖ'],
+        ['ƒ', 'n'],
+        ['ਨੂੰ', 'ਨ'],
+        ['&', 'P'],
+        ['ਫ਼', 'ਫ'],
+      ]
+      simplifications.forEach((e) => {
+        newWords = newWords.replace(new RegExp(e[0], 'g'), e[1])
+      })
+
+      newWords = newWords
+        .replace(/\]/g, '')
+        .replace(/\[/g, '')
+        .replace(/॥/g, '')
+        .replace(/।/g, '')
+        .replace(/rhwau dUjw/g, '')
+        .replace(/rhwau/g, '')
+        .replace(/[0-9]/g, '')
+        .replace(/[;,.]/g, '')
+
+      function firstLetter(word) {
+        let letter = word[0]
+        if (letter in reverseMapping) {
+          letter = reverseMapping[letter]
+        }
+        return letter
+      }
+
+      const letters = newWords.split(' ').map(firstLetter).join('')
+      return letters
+    }
+
+    if (search_input.length < 3) return {}
+    for (let i = 0; i < search_input.length; i++) {
+      const c = search_input[i]
+      if (c >= '0' && c <= '9') {
+        console.log('num in search input')
+        return
       }
     }
+    const all_matched_shabad_keys = {}
+    for (const key in ALL_SHABADS) {
+      const shabadArray = ALL_SHABADS[key]
+
+      for (let pu_ln_idx = 0; pu_ln_idx < shabadArray.length; pu_ln_idx += 3) {
+        const line = shabadArray[pu_ln_idx]
+        // for (const line of shabadArray) {
+        const first_letters = first_letters_gurmukhi(line)
+
+        let line_matched = true
+        for (let i = 0; i < search_input.length; i++) {
+          if (!line_matched) break
+          if (
+            first_letters.length === i ||
+            first_letters[i] !== search_input[i]
+          ) {
+            line_matched = false
+          }
+        }
+
+        if (line_matched) {
+          all_matched_shabad_keys[key] = pu_ln_idx
+          break
+        }
+      }
+    }
+    return all_matched_shabad_keys
   }
-  return all_matched_shabad_keys
+
+  const sbdId_input_tag = document.getElementById('first_letter_sbd')
+  const decs_input = document.getElementById('userDesc')
+  const user_input = sbdId_input_tag.value
+  const list_opts = document.getElementById('shabadId_list_opts')
+  console.log(user_input)
+
+  list_opts.innerHTML = ''
+  if (user_input === '') return
+
+  let max_items_to_show = 10
+
+  const mapping = {
+    a: 'ੳ',
+    A: 'ਅ',
+    s: 'ਸ',
+    S: 'ਸ਼',
+    d: 'ਦ',
+    D: 'ਧ',
+    f: 'ਡ',
+    F: 'ਢ',
+    g: 'ਗ',
+    G: 'ਘ',
+    h: 'ਹ',
+    H: '੍ਹ',
+    j: 'ਜ',
+    J: 'ਝ',
+    k: 'ਕ',
+    K: 'ਖ',
+    l: 'ਲ',
+    L: 'ਲ਼',
+    q: 'ਤ',
+    Q: 'ਥ',
+    w: 'ਾ',
+    W: 'ਾਂ',
+    e: 'ੲ',
+    E: 'ਓ',
+    r: 'ਰ',
+    R: '੍ਰ',
+    '®': '੍ਰ',
+    t: 'ਟ',
+    T: 'ਠ',
+    y: 'ੇ',
+    Y: 'ੈ',
+    u: 'ੁ',
+    ü: 'ੁ',
+    U: 'ੂ',
+    '¨': 'ੂ',
+    i: 'ਿ',
+    I: 'ੀ',
+    o: 'ੋ',
+    O: 'ੌ',
+    p: 'ਪ',
+    P: 'ਫ',
+    z: 'ਜ਼',
+    Z: 'ਗ਼',
+    x: 'ਣ',
+    X: 'ਯ',
+    c: 'ਚ',
+    C: 'ਛ',
+    v: 'ਵ',
+    V: 'ੜ',
+    b: 'ਬ',
+    B: 'ਭ',
+    n: 'ਨ',
+    ƒ: 'ਨੂੰ',
+    N: 'ਂ',
+    ˆ: 'ਂ',
+    m: 'ਮ',
+    M: 'ੰ',
+    µ: 'ੰ',
+    '`': 'ੱ',
+    '~': 'ੱ',
+    '¤': 'ੱ',
+    Í: '੍ਵ',
+    ç: '੍ਚ',
+    '†': '੍ਟ',
+    œ: '੍ਤ',
+    '˜': '੍ਨ',
+    '´': 'ੵ',
+    Ï: 'ੵ',
+    æ: '਼',
+    Î: '੍ਯ',
+    ì: 'ਯ',
+    í: '੍ਯ',
+    // 1: '੧',
+    // 2: '੨',
+    // 3: '੩',
+    // 4: '੪',
+    // 5: '੫',
+    // 6: '੬',
+    // '^': 'ਖ਼',
+    // 7: '੭',
+    // '&': 'ਫ਼',
+    // 8: '੮',
+    // 9: '੯',
+    // 0: '੦',
+    '\\': 'ਞ',
+    '|': 'ਙ',
+    '[': '।',
+    ']': '॥',
+    '<': 'ੴ',
+    '¡': 'ੴ',
+    Å: 'ੴ',
+    Ú: 'ਃ',
+    Ç: '☬',
+    '@': 'ੑ',
+    '‚': '❁',
+    '•': '੶',
+    ' ': ' ',
+  }
+
+  const gurmukhi_input = user_input
+    .split('')
+    .map((char) => mapping[char] || char)
+    .join('')
+  sbdId_input_tag.value = gurmukhi_input
+
+  const keyObj = findShabadsKey(gurmukhi_input)
+  for (let shabad_key in keyObj) {
+    const line_ind = keyObj[shabad_key]
+    const sbd = ALL_SHABADS[shabad_key]
+    console.log(line_ind)
+    const opt = document.createElement('button')
+
+    opt.classList.add('shabad_opt_from_userinput')
+    opt.onclick = (e) => {
+      e.preventDefault() //to not submit form
+      // sbdDetails.style.display = 'block'
+      // summaryTag.textContent = shabad_key
+      // fullSbdDiv.innerHTML = ALL_SHABADS[shabad_key].join('<br>')
+      sbdId_input_tag.value = shabad_key
+      decs_input.value = sbd[line_ind + 1] // the english transliteration
+    }
+    opt.innerText = sbd[line_ind]
+    list_opts.appendChild(opt)
+    max_items_to_show -= 1
+    if (max_items_to_show < 0) break
+  }
 }
 
 function scrollToDivAccodingToUrl() {
